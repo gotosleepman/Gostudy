@@ -1,0 +1,22 @@
+{
+    "name": "我的第一个NFT",
+    "description": "这是一张图文并茂的艺术作品，描绘了一个未来的城市景观。**亮点**：高分辨率，独一无二。",
+    "image": "ipfs://bafybeicbwoz5x3dfgo2xob3xkxwp3phyanswodt56kif7vpcczgl62u4xi",  // 替换成你的图片CID
+    "external_url": "https://mywebsite.com/nft/1",  // 可选，你的外部链接
+    "background_color": "AQUA",  // 可选，背景色
+    "attributes": [  // 可选，添加属性
+      {
+        "trait_type": "稀有度",
+        "value": "传奇"
+      },
+      {
+        "trait_type": "颜色",
+        "value": "蓝色"
+      },
+      {
+        "display_type": "number",  // 用于数值显示
+        "trait_type": "等级",
+        "value": 10
+      }
+    ]
+  }
