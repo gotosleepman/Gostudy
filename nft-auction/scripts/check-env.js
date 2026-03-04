@@ -28,6 +28,7 @@ function main() {
   if (network === "sepolia") {
     const rpc = process.env.SEPOLIA_RPC_URL || "";
     const pk = process.env.SEPOLIA_PRIVATE_KEY || "";
+    const ethUsdFeed = process.env.ETH_USD_FEED || "";
     const privateKeyPattern = /^0x[0-9a-fA-F]{64}$/;
 
     if (!/^https?:\/\//.test(rpc)) {
@@ -40,6 +41,33 @@ function main() {
         "\n[env-check] SEPOLIA_PRIVATE_KEY 格式不正确，必须是 0x + 64 位十六进制字符串（32字节私钥）。\n",
       );
       process.exit(1);
+    }
+
+    if (ethUsdFeed !== "" && !/^0x[0-9a-fA-F]{40}$/.test(ethUsdFeed)) {
+      console.error("\n[env-check] ETH_USD_FEED 格式不正确，必须是 0x 开头的 20 字节地址。\n");
+      process.exit(1);
+    }
+
+    const bidTokenAddress = process.env.BID_TOKEN_ADDRESS || "";
+    const tokenUsdFeed = process.env.TOKEN_USD_FEED || "";
+    const hasTokenPair = bidTokenAddress !== "" || tokenUsdFeed !== "";
+    if (hasTokenPair) {
+      if (bidTokenAddress === "" || tokenUsdFeed === "") {
+        console.error(
+          "\n[env-check] 若配置 ERC20 喂价，必须同时提供 BID_TOKEN_ADDRESS 与 TOKEN_USD_FEED。\n",
+        );
+        process.exit(1);
+      }
+
+      if (!/^0x[0-9a-fA-F]{40}$/.test(bidTokenAddress)) {
+        console.error("\n[env-check] BID_TOKEN_ADDRESS 格式不正确，必须是 0x 开头的地址。\n");
+        process.exit(1);
+      }
+
+      if (!/^0x[0-9a-fA-F]{40}$/.test(tokenUsdFeed)) {
+        console.error("\n[env-check] TOKEN_USD_FEED 格式不正确，必须是 0x 开头的地址。\n");
+        process.exit(1);
+      }
     }
   }
 

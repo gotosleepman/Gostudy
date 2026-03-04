@@ -1,9 +1,21 @@
 
 
   Auction
-    √ Should create auction (590ms)
+    ✔ should create auction with endTime (528ms)
+    ✔ should accept higher ETH bid and reject lower ETH bid (44ms)
+    ✔ should accept ERC20 bid and reject lower ERC20 bid (40ms)
+    ✔ should compare ETH and ERC20 by USD value (42ms)
+    ✔ should queue and withdraw refunds for ETH and ERC20 (44ms)
+    ✔ should end auction and transfer NFT with payout
+    ✔ should reject invalid auction id
+    ✔ should reject bids after auction end time
+    ✔ should reject ending auction without any bids
+    ✔ should reject ERC20 bid when token feed is not configured
+
+  Auction UUPS Upgrade
+    ✔ should upgrade from V1 to V2 and keep state (53ms)
 
 
-  1 passing (594ms)
+  11 passing (919ms)
 
 

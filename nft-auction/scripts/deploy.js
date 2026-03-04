@@ -10,19 +10,33 @@ async function main() {
     );
   }
 
-  const priceFeed = "0x694AA1769357215DE4FAC081bf1f309aDC325306";
+  const ethUsdFeed =
+    process.env.ETH_USD_FEED || "0x694AA1769357215DE4FAC081bf1f309aDC325306";
 
   const Auction = await ethers.getContractFactory("AuctionUpgradeable");
 
   const auction = await upgrades.deployProxy(
       Auction,
-      [priceFeed],
+      [ethUsdFeed],
       { initializer: "initialize", kind: "uups" }
   );
 
   await auction.waitForDeployment();
 
-  console.log("Auction deployed to:", await auction.getAddress());
+  console.log("Auction proxy deployed to:", await auction.getAddress());
+  console.log("ETH/USD feed:", ethUsdFeed);
+
+  const tokenAddress = process.env.BID_TOKEN_ADDRESS;
+  const tokenUsdFeed = process.env.TOKEN_USD_FEED;
+  if (tokenAddress && tokenUsdFeed) {
+    const tx = await auction.setTokenPriceFeed(tokenAddress, tokenUsdFeed);
+    await tx.wait();
+    console.log("Configured token feed:", tokenAddress, "=>", tokenUsdFeed);
+  } else {
+    console.log(
+      "Skip token feed config: set BID_TOKEN_ADDRESS and TOKEN_USD_FEED to enable."
+    );
+  }
 }
 
 main().catch((error) => {
