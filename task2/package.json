@@ -1,0 +1,15 @@
+{
+  "name": "task2",
+  "version": "1.0.0",
+  "description": "本任务在 `task2` 中完成以下目标：",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "solc": "^0.8.34"
+  }
+}
