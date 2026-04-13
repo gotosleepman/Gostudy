@@ -1,0 +1,39 @@
+# 借贷仿写后端配置（独立库名，避免与 pledge-backend 冲突）
+[mysql]
+address = "127.0.0.1"
+port = "3306"
+db_name = "lending_copy"
+user_name = "root"
+password = "your_password"
+max_open_conns = 50
+max_idle_conns = 10
+max_life_time = 600
+
+[redis]
+address = "127.0.0.1"
+port = "6379"
+db = 1
+password = ""
+max_idle = 10
+max_active = 0
+idle_timeout = 180
+
+[test_net]
+chain_id = "97"
+net_url = "https://data-seed-prebsc-1-s1.binance.org:8545"
+lending_pool_addr = "0x0000000000000000000000000000000000000000"
+
+[main_net]
+chain_id = "56"
+net_url = "https://bsc-dataseed.binance.org"
+lending_pool_addr = "0x0000000000000000000000000000000000000000"
+
+[threshold]
+# 主网/测试网合约地址原生币余额低于该值（wei）时记录告警日志
+lending_pool_native_threshold = "10000000000000000"
+
+[env]
+port = "8081"
+version = "1"
+protocol = "http"
+domain_name = "127.0.0.1"
