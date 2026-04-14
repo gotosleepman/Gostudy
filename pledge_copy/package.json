@@ -1,0 +1,31 @@
+{
+  "name": "pledge_copy",
+  "version": "1.0.0",
+  "description": "`pledge_copy` 是一个借贷项目拆解示例，包含：",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "clean": "hardhat clean",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js",
+    "deploy:bscTestnet": "hardhat run scripts/deploy.js --network bscTestnet",
+    "ignition:deploy:local": "hardhat ignition deploy ./ignition/modules/SimpleLendingPoolProxy.js",
+    "ignition:deploy:bscTestnet": "hardhat ignition deploy ./ignition/modules/SimpleLendingPoolProxy.js --network bscTestnet",
+    "ignition:upgrade:v2:local": "hardhat ignition deploy ./ignition/modules/SimpleLendingPoolUpgradeV2.js",
+    "ignition:upgrade:v2:bscTestnet": "hardhat ignition deploy ./ignition/modules/SimpleLendingPoolUpgradeV2.js --network bscTestnet"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.3",
+    "hardhat": "^3.3.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.6.1",
+    "@openzeppelin/contracts-upgradeable": "^5.6.1",
+    "dotenv": "^17.4.2"
+  }
+}

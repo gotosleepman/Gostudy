@@ -6,14 +6,19 @@
 - 一个 Go 后端服务：`lending-backend`
 - 一个定时同步任务入口：`lending-backend/cmd/lending_task`
 
-整体目标是对齐原有 Pledge 项目的核心数据结构（如 `poolBaseInfo` / `poolDataInfo`），便于后端扫链、入库和接口查询。
 
 ## 目录结构
 
 ```text
 pledge_copy/
 ├─ contracts/
-│  └─ SimpleLendingPool.sol
+│  ├─ mocks/MockERC20.sol
+│  ├─ SimpleLendingPool.sol
+│  ├─ SimpleLendingPoolProxy.sol
+│  └─ SimpleLendingPoolV2.sol
+├─ ignition/modules/      # Ignition 模块化部署/升级
+├─ scripts/               # 普通部署脚本
+├─ test/                  # Hardhat 测试
 └─ lending-backend/
    ├─ api/                # HTTP 接口、参数校验、响应结构
    ├─ cmd/lending_task/   # 定时任务入口
@@ -37,6 +42,93 @@ pledge_copy/
 - 提取抵押资产 `withdrawCollateral`
 
 合约中的池子字段命名尽量和后端表结构保持一致，便于后端直接同步和查询。
+
+## 合约开发（Hardhat）
+
+项目根目录已接入 Hardhat，可直接编译、测试、部署 `contracts/` 下合约。
+当前部署模式已改为 **UUPS 可升级代理**。
+
+### 安装依赖
+
+在项目根目录执行：
+
+```bash
+npm install
+```
+
+### 常用命令
+
+```bash
+# 编译合约
+npm run compile
+
+# 运行测试
+npm run test
+
+# 启动本地 Hardhat 节点
+npm run node
+
+# 本地网络部署（默认 hardhat 网络）
+npm run deploy:local
+
+# 部署到 BSC 测试网
+npm run deploy:bscTestnet
+
+# Ignition 模块化部署（UUPS Proxy）
+npm run ignition:deploy:local
+npm run ignition:deploy:bscTestnet
+
+# Ignition 模块化升级到 V2
+npm run ignition:upgrade:v2:local
+npm run ignition:upgrade:v2:bscTestnet
+```
+
+### 环境变量
+
+1. 复制 `.env.example` 为 `.env`
+2. 按需填写 RPC 与私钥
+
+> 注意：`.env` 已加入忽略列表，避免泄露私钥。
+
+### Ignition 模块说明
+
+- `ignition/modules/SimpleLendingPoolProxy.js`
+  - 部署 `SimpleLendingPool` 实现合约
+  - 编码 `initialize(uint256,uint256)` 初始化数据
+  - 部署 `SimpleLendingPoolProxy`（基于 ERC1967）并绑定 `SimpleLendingPool` 接口
+- `ignition/modules/SimpleLendingPoolUpgradeV2.js`
+  - 部署新实现 `SimpleLendingPoolV2`
+  - 通过代理执行 `upgradeToAndCall` 完成升级
+
+示例（本地）：
+
+```bash
+# 先部署代理
+npm run ignition:deploy:local
+
+# 再升级到 V2
+npm run ignition:upgrade:v2:local
+```
+
+### UUPS 升级实现说明
+
+- `SimpleLendingPool` 已使用 `Initializable + OwnableUpgradeable + UUPSUpgradeable`
+- 通过 `initialize` 完成初始化，构造函数中已 `_disableInitializers()`
+- 通过 `_authorizeUpgrade` 限制只有 `owner` 可升级
+- `SimpleLendingPoolV2` 提供升级演示新增状态与 `version()` 方法
+
+### 测试说明
+
+当前 `npm run test` 已覆盖 9 个核心场景，包括：
+
+- 代理初始化参数与 owner 校验
+- owner 权限（设置费率/创建池子/升级）校验
+- UUPS 升级到 V2 成功并可调用新增方法
+- `depositLend` 状态流转（`MATCH -> EXECUTION`）
+- 抵押借款成功路径与超额借款失败路径
+- 还款后提取抵押物成功路径
+
+测试中使用 `contracts/mocks/MockERC20.sol` 作为借贷与抵押代币，便于本地快速验证业务流程。
 
 ## 后端能力
 

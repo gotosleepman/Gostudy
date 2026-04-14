@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.23;
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /// @notice 最小 ERC20 接口（与 Pledge 池子字段对齐，便于后端用同一套表结构同步）
 interface IERC20 {
@@ -10,7 +14,7 @@ interface IERC20 {
 
 /// @title SimpleLendingPool
 /// @dev 仿 ProjectBreakdown-Pledge 的池结构：多池、借出币/抵押币、费率、poolBaseInfo/poolDataInfo 视图对齐后端扫链字段
-contract SimpleLendingPool {
+contract SimpleLendingPool is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     uint256 public lendFee;
     uint256 public borrowFee;
 
@@ -54,8 +58,6 @@ contract SimpleLendingPool {
     mapping(uint256 => mapping(address => uint256)) public collateral;
     mapping(uint256 => mapping(address => uint256)) public borrowed;
 
-    address public owner;
-
     event DepositLend(address indexed user, uint256 indexed pid, uint256 amount);
     event DepositBorrow(address indexed user, uint256 indexed pid, uint256 collateralAmt, uint256 borrowAmt);
     event Repay(address indexed user, uint256 indexed pid, uint256 amount);
@@ -64,14 +66,18 @@ contract SimpleLendingPool {
     event SetFee(uint256 lendFee, uint256 borrowFee);
     event StateChange(uint256 indexed pid, uint256 beforeState, uint256 afterState);
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "not owner");
-        _;
+    constructor() {
+        _disableInitializers();
     }
 
-    constructor() {
-        owner = msg.sender;
+    function initialize(uint256 _lendFee, uint256 _borrowFee) public initializer {
+        __Ownable_init(msg.sender);
+        lendFee = _lendFee;
+        borrowFee = _borrowFee;
+        emit SetFee(_lendFee, _borrowFee);
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function setFee(uint256 _lendFee, uint256 _borrowFee) external onlyOwner {
         lendFee = _lendFee;
